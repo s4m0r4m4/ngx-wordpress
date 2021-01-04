@@ -23,10 +23,10 @@ export interface WpConfig {
 }
 
 export interface WpObjectFilter {
-  [key: string]: WpPropertyFilter;
+  [key: string]: WpPropertyFilter[];
 }
 
-export type WpPropertyFilter = OperatorFunction<WpFilterRes<any>, WpFilterRes<any>>[];
+export type WpPropertyFilter = OperatorFunction<WpFilterRes<any>, WpFilterRes<any>>;
 
 export interface WpFilterRes<T> {
   key?: string;

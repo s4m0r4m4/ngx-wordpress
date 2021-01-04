@@ -1,12 +1,12 @@
-import { ModuleWithProviders, NgModule, Optional, SkipSelf } from '@angular/core';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-
-import { WordPress } from './wordpress.service';
+import { ModuleWithProviders, NgModule, Optional, SkipSelf } from '@angular/core';
+import { CachingInterceptor } from './cache/cache.interceptor';
+import { RequestCache, RequestCacheWithMap } from './cache/cache.service';
+import { WpConfig, WP_CONFIG } from './interfaces/wp-config.interface';
 // Avoid circular dependency error by NOT using barrel imports.
 import { JwtInterceptor } from './jwt/jwt.interceptor';
-import { RequestCache, RequestCacheWithMap } from './cache/cache.service';
-import { CachingInterceptor } from './cache/cache.interceptor';
-import { WP_CONFIG, WpConfig } from './interfaces/wp-config.interface';
+import { WordPress } from './wordpress.service';
+
 
 @NgModule({
   imports: [
@@ -21,7 +21,7 @@ export class WordPressModule {
     }
   }
 
-  static forRoot(config?: WpConfig): ModuleWithProviders {
+  static forRoot(config?: WpConfig): ModuleWithProviders<WordPressModule> {
     return {
       ngModule: WordPressModule,
       providers: [

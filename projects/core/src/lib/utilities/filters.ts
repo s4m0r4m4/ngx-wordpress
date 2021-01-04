@@ -1,29 +1,40 @@
-import { from, of, Observable } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
+import { pipeFromArray } from 'rxjs/internal/util/pipe';
 import { map, mergeMap } from 'rxjs/operators';
-import { WpPost, WpObjectFilter, WpPropertyFilter, WpTerm, WpUser, WpFilterRes } from '../interfaces';
+import { WpFilterRes, WpObjectFilter, WpPost, WpPropertyFilter, WpTerm, WpUser } from '../interfaces';
 
 /**
  * Filter WordPress model
  */
 export function filterModel(obj: any, filters: WpObjectFilter): Observable<any> {
-  // Loop over object filters
-  return from(Object.keys(filters)).pipe(
-    mergeMap((key: string) => filterProperty(key, obj, filters[key]))
-  );
+  let obsReturn$: Observable<any>;
+
+  if (filters) {
+    // Loop over object filters
+    obsReturn$ = from(Object.keys(filters)).pipe(
+      mergeMap((key: string) => filterProperty(key, obj, filters[key]))
+    );
+  } else {
+    // if not filters, just return the object
+    obsReturn$ = of(obj);
+  }
+
+  return obsReturn$;
 }
 
 /**
  * Filter WordPress model property
  */
-export function filterProperty(key: string, obj: any, filters: WpPropertyFilter): Observable<any> {
+export function filterProperty(key: string, obj: any, filters: WpPropertyFilter[]): Observable<any> {
+  // https://github.com/ReactiveX/rxjs/issues/3989
   // Loop over property filters
-  return of({key: key, value: obj}).pipe(
-    ...filters,
-    map((res: WpFilterRes<any>) => {
-      obj[key] = res.value;
-      return obj;
-    })
-  );
+  return pipeFromArray([
+      ...filters,
+      map((res: WpFilterRes<any>) => {
+            obj[key] = res.value;
+            return obj;
+          })
+    ])(of({key: key, value: obj}));
 }
 
 /**
